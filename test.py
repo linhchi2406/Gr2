@@ -1,24 +1,31 @@
-import requests
-from bs4 import BeautifulSoup
+import re
+import math
+from collections import Counter
+Word = re.compile(r'\w+')
 
-URL = "https://soict.hust.edu.vn/can-bo/ts-nguyen-binh-minh.html"
-page = requests.get(URL)
+def get_cosine(vec1, vec2):
+     intersection = set(vec1.keys()) & set(vec2.keys())
+     numerator = sum([vec1[x] * vec2[x] for x in intersection])
 
-# print(page.text)
-soup = BeautifulSoup(page.content, "html.parser")
-# print(soup.get_text())
-# results = soup.find(class="ResultsContainer")
-# job_elements = soup.find("p", class_="lead")
-job_elements = soup.find_all("p");
-print(job_elements[1].text);
+     sum1 = sum([vec1[x]**2 for x in vec1.keys()])
+     sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+     denominator = math.sqrt(sum1) * math.sqrt(sum2)
 
-# for job_element in job_elements: 
-# title_element = job_elements[0].find("h2", class_="title")
-    # company_element = job_element.find("h3", class_="company")
-    # location_element = job_element.find("p", class_="location")
-# print(title_element.text)
-    # print(company_element)
-    # print(location_element)
-print()
+     if not denominator:
+        return 0.0
+     else:
+        return float(numerator) / denominator
 
-# <html><head></head><body>Sacré bleu!</body></html>
+def text_to_vector(text):
+     words = Word.findall(text)
+     return Counter(words)
+
+text1 = 'Con mèo ăn cơm'
+text2 = 'Con mèo đang ăn cơm'
+
+vector1 = text_to_vector(text1)
+vector2 = text_to_vector(text2)
+
+cosine = get_cosine(vector1, vector2)
+
+print ("Cosine:", cosine)
